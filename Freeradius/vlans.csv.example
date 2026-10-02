@@ -1,0 +1,9 @@
+group_dn;vlan
+# AD group DN ; VLAN ID (or VLAN name, if your switches support names)
+# Separated by ";" because DNs contain commas. The FIRST matching group wins, so put
+# the most specific groups first. Nested group membership counts.
+# Groups can contain computers (machine authentication) and/or users (user authentication).
+# Do NOT use "Domain Computers" or "Domain Users": primary-group membership is invisible to LDAP.
+CN=VLAN-IT-Workstations,OU=Network Access,DC=corp,DC=example,DC=com;20
+CN=VLAN-Finance,OU=Network Access,DC=corp,DC=example,DC=com;30
+CN=VLAN-Corporate-Workstations,OU=Network Access,DC=corp,DC=example,DC=com;10

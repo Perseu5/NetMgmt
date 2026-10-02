@@ -1,0 +1,82 @@
+# FreeRADIUS installer answer file.
+# Copy to freeradius-install.conf, fill in, then:  sudo ./install-freeradius.sh
+#
+# This file is read by bash: put values in SINGLE quotes (especially passwords).
+# Relative paths are relative to this file's directory.
+# Anything left empty that is required will be prompted for.
+# Protect it:  chmod 600 freeradius-install.conf
+
+# ---------------------------------------------------------------------------
+# LDAP / Active Directory
+# ---------------------------------------------------------------------------
+LDAP_TYPE='ad'                       # ad | openldap
+LDAP_SERVERS='dc1.corp.example.com dc2.corp.example.com'   # host or host:port, space separated
+LDAP_SECURITY='ldaps'                # ldaps (636) | starttls (389) | plain (not recommended)
+LDAP_BASE_DN='DC=corp,DC=example,DC=com'
+#LDAP_USER_BASE_DN=''                # optional: narrower search base for users
+#LDAP_GROUP_BASE_DN=''               # optional: narrower search base for groups
+LDAP_BIND_DN='CN=svc-radius,OU=Service Accounts,DC=corp,DC=example,DC=com'
+LDAP_BIND_PASSWORD=''                # leave empty to be prompted (not stored on disk here)
+LDAP_CA_CERT=''                      # CA for the LDAP servers' certificate; empty = system trust store
+
+# ---------------------------------------------------------------------------
+# Authorisation groups (full DNs). AD nested groups are honoured.
+# ---------------------------------------------------------------------------
+# NOTE: "Domain Computers" / "Domain Users" are AD *primary* groups and are invisible
+# to LDAP. Use regular security groups.
+ADMIN_GROUP_DN='CN=Network Admins,OU=Groups,DC=corp,DC=example,DC=com'      # full admin on devices
+READONLY_GROUP_DN=''                 # optional read-only device access
+DOT1X_GROUP_DN=''                    # optional: only members may use 802.1X (empty = any enabled account)
+
+# ---------------------------------------------------------------------------
+# 802.1X (replaces the NPS network policies)
+# ---------------------------------------------------------------------------
+EAP_METHODS='tls'                    # tls = EAP-TLS certificates | ttls = EAP-TTLS/PAP passwords | 'tls ttls'
+EAP_CLIENT_CA='certs/issuing-ca.pem' # CA(s) that issue workstation/user certs: your AD CS root AND issuing CA.
+                                     # Internal CA only - every cert it signed passes validation. Empty = CA_CERT.
+EAPTLS_ACCOUNTS='computers'          # computers = workstation certificates only (Windows "Computer authentication")
+                                     # 'computers users' = also accept user certificates
+EAPTLS_CHECK_IDENTITY='yes'          # identity must match the certificate (host/<fqdn> = DNS SAN/CN, user = UPN/CN)
+VLAN_MAP_FILE='vlans.csv'            # AD group -> VLAN, first match wins; empty = no VLAN assignment
+DEFAULT_VLAN=''                      # VLAN for authenticated accounts matching no group; empty = switch port's VLAN
+
+# Revocation (NPS checks CRLs by default). Use the HTTP CDP URL(s) of your issuing CA,
+# e.g. 'http://pki.corp.example.com/CertEnroll/Corp%20Issuing%20CA.crl'
+CRL_URLS=''                          # space separated; refreshed every 4 hours
+OCSP_URL=''                          # optional AD CS Online Responder, e.g. 'http://pki.corp.example.com/ocsp'
+
+# Juniper only: local template users the device maps RADIUS users to.
+#JUNIPER_ADMIN_USER='remote-admin'
+#JUNIPER_READONLY_USER='remote-readonly'
+
+# ---------------------------------------------------------------------------
+# Certificates  (PEM or DER; or a PKCS#12 .pfx/.p12 instead of cert+key)
+# ---------------------------------------------------------------------------
+CA_CERT='certs/ca.pem'               # root CA (and optionally intermediates) that issued the server cert
+
+# Either a PKCS#12 bundle ...
+SERVER_PFX=''
+SERVER_PFX_PASSWORD=''
+# ... or separate files. The cert file may already contain the chain.
+SERVER_CERT='certs/radius.pem'
+SERVER_KEY='certs/radius.key'
+SERVER_KEY_PASSWORD=''               # only if the key is encrypted
+SERVER_CHAIN=''                      # optional intermediate CA file
+
+# ---------------------------------------------------------------------------
+# RadSec (RADIUS over TLS)
+# ---------------------------------------------------------------------------
+RADSEC_ENABLE='yes'
+RADSEC_PORT='2083'
+RADSEC_CLIENT_CA=''                  # CA that issues the network devices' client certs; empty = CA_CERT
+# Optional separate RadSec server certificate (defaults to the one above):
+#RADSEC_PFX=''  RADSEC_PFX_PASSWORD=''
+#RADSEC_CERT='' RADSEC_KEY='' RADSEC_KEY_PASSWORD='' RADSEC_CHAIN=''
+
+# ---------------------------------------------------------------------------
+# Network devices and misc
+# ---------------------------------------------------------------------------
+CLIENTS_FILE='clients.csv'
+LISTEN_IPV6='auto'                   # auto | yes | no
+OPEN_FIREWALL='yes'                  # add firewalld rules
+RPM_DIR=''                           # air-gapped: directory with the freeradius RPMs to install from

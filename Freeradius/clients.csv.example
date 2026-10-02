@@ -1,0 +1,13 @@
+name,address,secret,nas_type,transport
+# name      : unique label (letters, digits, . _ -)
+# address   : IPv4/IPv6 address or CIDR prefix (e.g. 10.20.0.0/24)
+# secret    : shared secret (no commas). Leave empty to auto-generate one;
+#             it is generated once, kept for re-runs, and listed in
+#             /root/freeradius-client-secrets.txt.
+#             Ignored for radsec (RFC 6614 fixes it to "radsec").
+# nas_type  : cisco | cisco-nxos | juniper | other   (controls admin privilege attributes)
+# transport : udp | radsec
+core-sw1,10.0.0.1,ChangeMe-LongRandomSecret-01,cisco,udp
+dc-nexus,10.0.10.0/24,,cisco-nxos,udp
+edge-mx,10.0.20.1,,juniper,udp
+aruba-cx-radsec,10.0.30.5,,other,radsec
